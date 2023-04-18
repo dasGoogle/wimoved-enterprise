@@ -36,7 +36,7 @@ jobs:
       with:
         push: true
         context: ./docker/openwrt-build-env
-        tags: ghcr.io/wimove-oss/wimove/wimove-buildenv/${{ inputs.architecture }}:${{ env.BRANCH }}
+        tags: ghcr.io/dasGoogle/wimoved-enterprise/wimove-buildenv/${{ inputs.architecture }}:${{ env.BRANCH }}
         cache-from: type=gha,scope=$GITHUB_REF_NAME-${{ inputs.architecture }}
         cache-to: type=gha,mode=max,scope=$GITHUB_REF_NAME-${{ inputs.architecture }}
         build-args: |
@@ -56,7 +56,7 @@ jobs:
           password: ${{ secrets.ghtoken }}
       - name: Build OpenWrt
         env:
-          IMAGE: "ghcr.io/wimove-oss/wimove/wimove-buildenv/${{ inputs.architecture }}:${{ env.BRANCH }}"
+          IMAGE: "ghcr.io/dasGoogle/wimoved-enterprise/wimove-buildenv/${{ inputs.architecture }}:${{ env.BRANCH }}"
           VERSION: "${{ inputs.version }}"
         run: chmod +x ./openwrt/build-openwrt.sh && ./openwrt/build-openwrt.sh
       - uses: actions/upload-artifact@v3
