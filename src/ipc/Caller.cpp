@@ -45,6 +45,7 @@ std::vector<Station> ipc::Caller::connected_stations() {
         while (!ipc_result.empty()) {
             if (ipc_result != "FAIL\n" && ipc_result.length() >= MAC_ADDRESS_LENGTH) {
                 stations.emplace_back(sockname, MacAddress(ipc_result.substr(0, MAC_ADDRESS_LENGTH)));
+                stations.back().user = user_for_station(stations.back());
             }
             ipc_result = socket.send_and_receive({"STA-NEXT", stations[stations.size() - 1].mac.string()});
         }

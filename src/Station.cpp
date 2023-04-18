@@ -12,7 +12,6 @@ Station::Station(std::string sockname, MacAddress mac)
 
 uint32_t Station::vni() const {
     // Use username as VNI
-    WMLOG(DEBUG) << "Reading VNI " << std::stol(user) <<  " from username " << user;
     return std::stol(user);
 }
 
