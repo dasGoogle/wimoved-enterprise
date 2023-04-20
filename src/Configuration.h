@@ -28,6 +28,9 @@ class Configuration {
     static const std::string DEFAULT_LOG_PATH;
     static const std::vector<std::string> DEFAULT_SOCKNAMES;
     static const uint32_t DEFAULT_CLEANUP_INTERVAL;
+    static const uint16_t DEFAULT_RADIUS_PROXY_PORT;
+    static const uint16_t DEFAULT_RADIUS_SERVER_PORT;
+    static const std::string DEFAULT_RADIUS_SERVER_IP;
 
     uint32_t min_vni = DEFAULT_MIN_VNI;
     uint32_t max_vni = DEFAULT_MAX_VNI;
@@ -37,12 +40,18 @@ class Configuration {
     std::vector<std::string> socknames = DEFAULT_SOCKNAMES;
     uint32_t cleanup_interval = DEFAULT_CLEANUP_INTERVAL;
 
+    //Radius Server Configuration
+    std::string radius_server_ip = DEFAULT_RADIUS_SERVER_IP;
+    uint16_t radius_server_port = DEFAULT_RADIUS_SERVER_PORT;
+    uint16_t radius_proxy_port = DEFAULT_RADIUS_PROXY_PORT;
+
    private:
     Configuration() = default;
     void set_all_available_sockets_if_empty();
     Configuration& operator=(Configuration&&) = default;
 
     static Configuration INSTANCE;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
 };
 
 #include "ConfigParser.h"

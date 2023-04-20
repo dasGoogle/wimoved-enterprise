@@ -12,6 +12,9 @@ const std::string Configuration::DEFAULT_HAPD_GROUP = "root";
 const std::string Configuration::DEFAULT_LOG_PATH = "wimoved.log";
 const std::vector<std::string> Configuration::DEFAULT_SOCKNAMES = {};
 const uint32_t Configuration::DEFAULT_CLEANUP_INTERVAL = 10;
+const std::string Configuration::DEFAULT_RADIUS_SERVER_IP = "127.0.0.1";
+const uint16_t Configuration::DEFAULT_RADIUS_SERVER_PORT = 1812;
+const uint16_t Configuration::DEFAULT_RADIUS_PROXY_PORT = 1814;
 
 const std::string HAPD_GLOBAL_SOCK_NAME = "global";
 
@@ -27,6 +30,13 @@ static void set_string_if_valid(const ConfigParser& parser, std::string& config_
 static void set_uint32_if_valid(const ConfigParser& parser, uint32_t& config_target, const std::string& key) {
     try {
         config_target = parser.get_config_uint32(key);
+    } catch (const std::out_of_range& err) {
+    }
+}
+
+static void set_uint16_if_valid(const ConfigParser& parser, uint16_t& config_target, const std::string& key) {
+    try {
+        config_target = parser.get_config_uint16(key);
     } catch (const std::out_of_range& err) {
     }
 }
@@ -61,6 +71,10 @@ void Configuration::apply_config_file(const ConfigParser& parser) {
     set_uint32_if_valid(parser, this->min_vni, "min_vni");
     set_uint32_if_valid(parser, this->max_vni, "max_vni");
     set_string_vector_if_valid(parser, this->socknames, "sockets");
+    set_string_if_valid(parser, this->radius_server_ip, "radius_server_ip");
+    set_uint16_if_valid(parser, this->radius_server_port, "radius_server_port");
+    set_uint16_if_valid(parser, this->radius_proxy_port, "radius_proxy_port");
+
 }
 
 void Configuration::apply_environment() { set_all_available_sockets_if_empty(); }

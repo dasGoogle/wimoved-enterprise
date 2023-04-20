@@ -10,9 +10,10 @@
 #include "EventLoop.h"
 #include "ipc/Subscriber.h"
 #include "logging/loginit.h"
+#include "radius/Proxy.h"
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
-std::vector<std::promise<void>> promises(3);
+std::vector<std::promise<void>> promises(4);
 bool promises_resolved = false;
 std::mutex promises_mutex;
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
@@ -75,6 +76,7 @@ int main(int argc, char* argv[]) {
 
     std::chrono::duration timeout = std::chrono::seconds(1);
     EventLoop event_loop(renderer, ipc_queue);
+    radius::Proxy radius_proxy;
 
     std::thread ipc_subscriber_thread(
         [&ipc_queue, &timeout]() { ipc::Subscriber(ipc_queue, timeout).loop(promises[0].get_future()); });
@@ -87,7 +89,9 @@ int main(int argc, char* argv[]) {
             std::this_thread::sleep_for(std::chrono::seconds(Configuration::get_instance().cleanup_interval));
         }
     });
+    std::thread proxy_loop_thread([&radius_proxy]() { radius_proxy.loop(promises[3].get_future()); });
     ipc_subscriber_thread.join();
     event_loop_ipc_thread.join();
+    proxy_loop_thread.join();
     cleanup_thread.join();
 }
