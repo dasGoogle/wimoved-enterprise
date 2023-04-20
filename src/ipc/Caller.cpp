@@ -33,7 +33,7 @@ std::string ipc::Caller::user_for_station(const Station &station) {
             return line.substr(USERNAME_PREFIX.size(), line.size());
         }
     }
-    throw std::runtime_error("no vlan_id attribute found for station");
+    throw std::runtime_error("no user found for station");
 }
 
 std::vector<Station> ipc::Caller::connected_stations() {
@@ -44,8 +44,14 @@ std::vector<Station> ipc::Caller::connected_stations() {
         std::string ipc_result = socket.send_and_receive({"STA-FIRST"});
         while (!ipc_result.empty()) {
             if (ipc_result != "FAIL\n" && ipc_result.length() >= MAC_ADDRESS_LENGTH) {
-                stations.emplace_back(sockname, MacAddress(ipc_result.substr(0, MAC_ADDRESS_LENGTH)));
-                stations.back().user = user_for_station(stations.back());
+                Station station(sockname, MacAddress(ipc_result.substr(0, MAC_ADDRESS_LENGTH)));
+                try {
+                    station.user = user_for_station(station);
+                } catch (const std::runtime_error &e) {
+                    WMLOG(WARNING) << "Could not get user for station: " << e.what();
+                }
+                stations.emplace_back(station);
+
             }
             ipc_result = socket.send_and_receive({"STA-NEXT", stations[stations.size() - 1].mac.string()});
         }

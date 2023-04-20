@@ -31,8 +31,12 @@ void BridgePerVxlanRenderer::cleanup(const std::function<std::vector<Station>()>
     WMLOG(DEBUG) << "Starting cleanup.";
     int sta_counter = 0;
     for (auto& station : get_stations()) {
-        connected_station_vnis.emplace(station.vni());
-        sta_counter++;
+        try {
+            connected_station_vnis.emplace(station.vni());
+            sta_counter++;
+        } catch (const std::exception& e) {
+            WMLOG(WARNING) << "Could not get vni for station: " << e.what();
+        }
     }
     vni_gauge.Set(static_cast<double>(connected_station_vnis.size()));
     station_gauge.Set(sta_counter);
