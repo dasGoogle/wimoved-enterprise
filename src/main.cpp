@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 
     std::chrono::duration timeout = std::chrono::seconds(1);
     EventLoop event_loop(renderer, ipc_queue);
-    radius::Proxy radius_proxy;
+    radius::Proxy &radius_proxy = radius::Proxy::get_instance();
 
     std::thread ipc_subscriber_thread(
         [&ipc_queue, &timeout]() { ipc::Subscriber(ipc_queue, timeout).loop(promises[0].get_future()); });

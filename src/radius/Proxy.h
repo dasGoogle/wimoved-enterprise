@@ -20,6 +20,11 @@ class Proxy {
     Proxy();
     void loop(const std::future<void>& future);
     uint32_t vni_for_user(const std::string& user);
+    ~Proxy() = default;
+    Proxy(Proxy const&) = delete;
+    void operator=(Proxy const&) = delete;
+
+    static Proxy& get_instance();
 
    private:
     struct sockaddr_in radius_server_address;

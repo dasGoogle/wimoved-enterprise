@@ -57,7 +57,7 @@ void radius::Proxy::loop(const std::future<void>& future) {
 void radius::Proxy::extract_vni_from_packet(radius::RadiusPacket& packet) {
     std::string vni_string;
     std::string user;
-    uint8_t tunnel_type = 0;
+    uint32_t tunnel_type = 0;
     for (auto& attr : packet.attributes) {
         if (attr.type == TUNNEL_PRIVATE_GROUP_ID) {
             vni_string = reinterpret_cast<char*>(attr.value);
@@ -66,7 +66,7 @@ void radius::Proxy::extract_vni_from_packet(radius::RadiusPacket& packet) {
             user = reinterpret_cast<char*>(attr.value);
         }
         if (attr.type == TUNNEL_TYPE) {
-            tunnel_type = attr.value[0];
+            tunnel_type = attr.value[0] << 24 | attr.value[1] << 16 | attr.value[2] << 8 | attr.value[3];
         }
     }
     if (!vni_string.empty() && !user.empty() && tunnel_type == TUNNEL_PROTO_VXLAN) {
@@ -79,12 +79,16 @@ void radius::Proxy::extract_vni_from_packet(radius::RadiusPacket& packet) {
 }
 
 uint32_t radius::Proxy::vni_for_user(const std::string& user) {
-    try {
-        {
-            std::lock_guard lock(mutex);
-            return vni_map[user];
+    {
+        std::lock_guard lock(mutex);
+        if (!vni_map.contains(user)) {
+            throw std::runtime_error("No VNI found for user " + user);
         }
-    } catch (const std::exception& e) {
-        throw std::runtime_error("No VNI found for user " + user);
+        return vni_map[user];
     }
+}
+
+radius::Proxy& radius::Proxy::get_instance() {
+    static Proxy instance;
+    return instance;
 }

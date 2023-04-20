@@ -31,9 +31,10 @@ void EventLoop::handle_connect(ipc::ConnectEvent* event) {
     event->station.user = caller.user_for_station(event->station);
     WMLOG(DEBUG) << "handle_connect called " << event->station << " with vlan_id "
                  << event->station.vlan_id.value_or(0);
+    try {
     WMLOG(INFO) << "Station " << event->station << " connected to AP for VXLAN " << event->station.vni()
                 << " at interface " << event->station.sockname;
-    try {
+
         renderer.setup_station(event->station);
         processing_time_histogram.Observe(static_cast<double>(event->finished_processing()));
     } catch (std::runtime_error& err) {
